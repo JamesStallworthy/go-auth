@@ -1,0 +1,6 @@
+TempuratureClient:
+    id: TempuratureClient
+    secret: SuperSecretSecret
+TestClient:
+    id: test
+    secret: secret
