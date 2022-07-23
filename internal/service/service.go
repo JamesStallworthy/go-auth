@@ -10,6 +10,7 @@ var jwtKey = []byte("my_secret_key")
 
 type AuthenticateService interface {
 	GenerateJwtToken(id string, secret string) (string, error)
+	RefreshJwtToken(jwt string) (string, error)
 }
 
 type Claims struct {
