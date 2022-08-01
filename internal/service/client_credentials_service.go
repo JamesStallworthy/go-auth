@@ -14,7 +14,48 @@ import (
 )
 
 type ClientCredentialService struct {
-	AuthRepo repository.AuthenticateRepository
+	AuthRepo   repository.AuthenticateRepository
+	privateKey []byte
+	publicKey  []byte
+}
+
+func (s *ClientCredentialService) Init() error {
+	if _, err := os.Stat("private.pem"); err == nil {
+		err = s.LoadKeys()
+		if err != nil {
+			return err
+		}
+
+		return nil
+	} else if errors.Is(err, os.ErrNotExist) {
+		err := s.GenerateRSAKey()
+		if err != nil {
+			return err
+		}
+		s.LoadKeys()
+		if err != nil {
+			return err
+		}
+		return nil
+	} else {
+		return err
+	}
+}
+
+func (s *ClientCredentialService) LoadKeys() error {
+	var err error
+	s.privateKey, err = os.ReadFile("private.pem")
+
+	if err != nil {
+		return err
+	}
+
+	s.publicKey, err = os.ReadFile("public.pem")
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s ClientCredentialService) GenerateJwtToken(id string, secret string) (string, error) {
@@ -24,16 +65,16 @@ func (s ClientCredentialService) GenerateJwtToken(id string, secret string) (str
 		return "", err
 	}
 
-	tokenString, err := generateJwtTokenImpl()
+	tokenString, err := s.generateJwtTokenImpl()
 
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return tokenString, nil
 }
 
-func generateJwtTokenImpl() (string, error) {
+func (s ClientCredentialService) generateJwtTokenImpl() (string, error) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 
 	claims := Claims{
@@ -43,17 +84,29 @@ func generateJwtTokenImpl() (string, error) {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
-	tokenString, err := token.SignedString(jwtKey)
+	key, err := jwt.ParseRSAPrivateKeyFromPEM(s.privateKey)
+
+	if err != nil {
+		return "", err
+	}
+
+	tokenString, err := token.SignedString(key)
 	return tokenString, err
 }
 
 func (s ClientCredentialService) RefreshJwtToken(tokenString string) (string, error) {
 	claims := &Claims{}
 
+	key, err := jwt.ParseRSAPublicKeyFromPEM(s.publicKey)
+
+	if err != nil {
+		return "", err
+	}
+
 	tkn, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+		return key, nil
 	})
 
 	if err != nil {
@@ -64,7 +117,7 @@ func (s ClientCredentialService) RefreshJwtToken(tokenString string) (string, er
 		return "", errors.New("token is not valid")
 	}
 
-	newTokenString, err2 := generateJwtTokenImpl()
+	newTokenString, err2 := s.generateJwtTokenImpl()
 
 	if err2 != nil {
 		return "", err
@@ -99,7 +152,11 @@ func (s ClientCredentialService) GenerateRSAKey() error {
 		return err
 	}
 
-	var publicKeyBytes []byte = x509.MarshalPKCS1PublicKey(publicKey)
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return err
+	}
+
 	publicKeyBlock := &pem.Block{
 		Type:  "PUBLIC KEY",
 		Bytes: publicKeyBytes,

@@ -18,7 +18,12 @@ func main() {
 		return
 	}
 
-	serv = service.CreateClientCredentialService(repo)
+	serv, err = service.CreateClientCredentialService(repo)
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 
 	_ = api.CreateRestAPIHandler(serv, port)
 }
