@@ -2,6 +2,8 @@ package service
 
 import (
 	"go-auth/internal/repository"
+	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
@@ -77,4 +79,23 @@ func TestRefreshJwtTokenExpiredToken(t *testing.T) {
 
 	assert.Empty(t, newToken)
 	assert.Contains(t, err.Error(), "token is expired by")
+}
+
+func TestRSAKeyGen(t *testing.T) {
+	serv := Setup()
+
+	err := serv.GenerateRSAKey()
+	assert.Equal(t, nil, err)
+
+	publicFile, err1 := ioutil.ReadFile("public.pem")
+	privateFile, err2 := ioutil.ReadFile("private.pem")
+
+	assert.Equal(t, nil, err1)
+	assert.Equal(t, nil, err2)
+
+	assert.Contains(t, string(publicFile), "PUBLIC KEY")
+	assert.Contains(t, string(privateFile), "RSA PRIVATE KEY")
+
+	os.Remove("private.pem")
+	os.Remove("public.pem")
 }

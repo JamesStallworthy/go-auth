@@ -1,8 +1,13 @@
 package service
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"go-auth/internal/repository"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -66,4 +71,51 @@ func (s ClientCredentialService) RefreshJwtToken(tokenString string) (string, er
 	}
 
 	return newTokenString, nil
+}
+
+func (s ClientCredentialService) GenerateRSAKey() error {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return err
+	}
+
+	publicKey := &privateKey.PublicKey
+
+	var privateKeyBytes []byte = x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyBlock := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: privateKeyBytes,
+	}
+
+	privatePemWriter, err := os.Create("private.pem")
+
+	if err != nil {
+		return err
+	}
+
+	err = pem.Encode(privatePemWriter, privateKeyBlock)
+
+	if err != nil {
+		return err
+	}
+
+	var publicKeyBytes []byte = x509.MarshalPKCS1PublicKey(publicKey)
+	publicKeyBlock := &pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: publicKeyBytes,
+	}
+
+	publicPemWriter, err := os.Create("public.pem")
+
+	if err != nil {
+		return err
+	}
+
+	err = pem.Encode(publicPemWriter, publicKeyBlock)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
