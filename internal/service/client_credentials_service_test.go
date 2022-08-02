@@ -16,7 +16,7 @@ func Setup() *ClientCredentialService {
 	mockRepo.CreateClient("Test", "Secret")
 
 	serv, _ := CreateClientCredentialService(mockRepo)
-	serv.Init()
+
 	return &serv
 }
 
@@ -76,7 +76,7 @@ func TestRefreshJwtTokenInvalidToken(t *testing.T) {
 func TestRefreshJwtTokenExpiredToken(t *testing.T) {
 	serv := Setup()
 
-	newToken, err := serv.RefreshJwtToken("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0IiwiZXhwIjoxNjU5Mzg3MTQxfQ.tKBKpfjtE938TvqwcQyFA7WzjPIvf9bD_JcMYltqQ2AoZkaDBKahnmJ2YobIQ3P4k7jUWtlsMtY507l08jQFMdhuYQYUDQtaEeaWRzVWy7osqgRXXc44CVfRVfNq9oAuKzsByisUqJvvtdimmYKkmcuVwkdqp-1Md1deVcqUvc_r4KpsFgQgW5k7uZ3PuwJ7jyNPefldltDfl-qN-tw0XwY5PdeTMjhrB8OpcBIXF17n_bIZVwTi99gWTSzxe6TfknYw_XjNXcje_xWdlQE6WZmlVLUArM5eJcbVeCS2f6J6lJArgGeGsojHewY0k9l3ujd4vdteZQg41T3Ssupsiw")
+	newToken, err := serv.RefreshJwtToken("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0IiwiZXhwIjoxNjU5NDc2ODk5fQ.4BJrS-p1oxewhyOT5kf5Zc6gs7B1wK3QdhTofLnPwVIr0gACBEmnxStQn7CC6BjYktaWAImizClId6_Os8RnRML9E2vFA5ZCt2ZevMkFSJqRWFOEXwTfKj-AnwxV6Pxt_VzYm_RkImV0JE50C2Kkg1A6ps8OAOPGCg6VZDiLNPr7JZZYj1dtjgn6DZzFBeJSRI1bXp8NuBlW_YmqJzcgSSN_TB6ztVwKKqoE782y5xYoZ-z20qtUQrfadX1b0PszkMRJJrbBbvUpe_pInkc3qeyH1Ib7uiNqZjPNNlxVQ4lihzliVHjdu1nGTlOrMIMR4d32Tp2kwXfNcZXiyVofPw")
 
 	assert.Empty(t, newToken)
 	assert.Contains(t, err.Error(), "token is expired by")
