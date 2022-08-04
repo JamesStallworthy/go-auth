@@ -15,8 +15,8 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateClientCredentialService(repo repository.AuthenticateRepository) (ClientCredentialService, error) {
+func CreateClientCredentialService(repo repository.AuthenticateRepository, keyLocation string) (ClientCredentialService, error) {
 	s := ClientCredentialService{AuthRepo: repo}
-	err := s.Init()
+	err := s.Init(keyLocation)
 	return s, err
 }

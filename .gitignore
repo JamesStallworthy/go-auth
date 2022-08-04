@@ -2,3 +2,5 @@
 .vscode/launch.json
 
 *.pem
+!/test_certs/*.pem
+

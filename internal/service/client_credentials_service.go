@@ -8,19 +8,25 @@ import (
 	"errors"
 	"go-auth/internal/repository"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type ClientCredentialService struct {
-	AuthRepo   repository.AuthenticateRepository
-	privateKey []byte
-	publicKey  []byte
+	AuthRepo           repository.AuthenticateRepository
+	privateKey         []byte
+	publicKey          []byte
+	publicKeyLocation  string
+	privateKeyLocation string
 }
 
-func (s *ClientCredentialService) Init() error {
-	if _, err := os.Stat("private.pem"); err == nil {
+func (s *ClientCredentialService) Init(keyLocation string) error {
+	s.publicKeyLocation = filepath.Join(keyLocation, "/public.pem")
+	s.privateKeyLocation = filepath.Join(keyLocation, "/private.pem")
+
+	if _, err := os.Stat(s.privateKeyLocation); err == nil {
 		err = s.LoadKeys()
 		if err != nil {
 			return err
@@ -44,13 +50,13 @@ func (s *ClientCredentialService) Init() error {
 
 func (s *ClientCredentialService) LoadKeys() error {
 	var err error
-	s.privateKey, err = os.ReadFile("private.pem")
+	s.privateKey, err = os.ReadFile(s.privateKeyLocation)
 
 	if err != nil {
 		return err
 	}
 
-	s.publicKey, err = os.ReadFile("public.pem")
+	s.publicKey, err = os.ReadFile(s.publicKeyLocation)
 
 	if err != nil {
 		return err
@@ -140,7 +146,7 @@ func (s ClientCredentialService) GenerateRSAKey() error {
 		Bytes: privateKeyBytes,
 	}
 
-	privatePemWriter, err := os.Create("private.pem")
+	privatePemWriter, err := os.Create(s.privateKeyLocation)
 
 	if err != nil {
 		return err
@@ -162,7 +168,7 @@ func (s ClientCredentialService) GenerateRSAKey() error {
 		Bytes: publicKeyBytes,
 	}
 
-	publicPemWriter, err := os.Create("public.pem")
+	publicPemWriter, err := os.Create(s.publicKeyLocation)
 
 	if err != nil {
 		return err

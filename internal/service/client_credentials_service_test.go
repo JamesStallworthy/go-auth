@@ -3,7 +3,6 @@ package service
 import (
 	"go-auth/internal/repository"
 	"io/ioutil"
-	"os"
 	"testing"
 	"time"
 
@@ -15,7 +14,7 @@ func Setup() *ClientCredentialService {
 
 	mockRepo.CreateClient("Test", "Secret")
 
-	serv, _ := CreateClientCredentialService(mockRepo)
+	serv, _ := CreateClientCredentialService(mockRepo, "../../test_certs/")
 
 	return &serv
 }
@@ -76,14 +75,18 @@ func TestRefreshJwtTokenInvalidToken(t *testing.T) {
 func TestRefreshJwtTokenExpiredToken(t *testing.T) {
 	serv := Setup()
 
-	newToken, err := serv.RefreshJwtToken("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0IiwiZXhwIjoxNjU5NDc2ODk5fQ.4BJrS-p1oxewhyOT5kf5Zc6gs7B1wK3QdhTofLnPwVIr0gACBEmnxStQn7CC6BjYktaWAImizClId6_Os8RnRML9E2vFA5ZCt2ZevMkFSJqRWFOEXwTfKj-AnwxV6Pxt_VzYm_RkImV0JE50C2Kkg1A6ps8OAOPGCg6VZDiLNPr7JZZYj1dtjgn6DZzFBeJSRI1bXp8NuBlW_YmqJzcgSSN_TB6ztVwKKqoE782y5xYoZ-z20qtUQrfadX1b0PszkMRJJrbBbvUpe_pInkc3qeyH1Ib7uiNqZjPNNlxVQ4lihzliVHjdu1nGTlOrMIMR4d32Tp2kwXfNcZXiyVofPw")
+	newToken, err := serv.RefreshJwtToken("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0IiwiZXhwIjoxNjU5NjM2NzA0fQ.Ns_PZV1vtfmgcd0M7JyIkF11IQT94eAiLh64L9EGCew7XB4QWLmKCfL_CWfLzLVng7vEGgFBioR1hX-Ruq9gylOn5lfMolOzzd-ckhVb27YHTTLNdL6N21rHTfaN1AkBf74V05vd1jAH5oWIbAeSfohxnfCGHlGps4ef9A9P-zHwS3LAtROaDM-IaWRXQUvVgYf1jto1bDlHh5mONdKy9-EtftoH4qIUgmxsajwvi4Y3GKQO32hmqontjWa_IHUBQXSmb08W39PSvlJI1wPSVLPdbNbUvbJigHiyoykFcVSZFzzWp8TBwcIHKFNmjdukrwqUkuhU6qsOrx-3UUtF5Q")
 
 	assert.Empty(t, newToken)
 	assert.Contains(t, err.Error(), "token is expired by")
 }
 
 func TestRSAKeyGen(t *testing.T) {
-	serv := Setup()
+	mockRepo := repository.CreateMockRepository()
+
+	mockRepo.CreateClient("Test", "Secret")
+
+	serv, _ := CreateClientCredentialService(mockRepo, "./")
 
 	err := serv.GenerateRSAKey()
 	assert.Equal(t, nil, err)
@@ -96,7 +99,4 @@ func TestRSAKeyGen(t *testing.T) {
 
 	assert.Contains(t, string(publicFile), "PUBLIC KEY")
 	assert.Contains(t, string(privateFile), "RSA PRIVATE KEY")
-
-	os.Remove("private.pem")
-	os.Remove("public.pem")
 }
