@@ -61,3 +61,16 @@ func TestWellKnown(t *testing.T) {
 	assert.Equal(t, 200, w.Code) // or what value you need it to be
 	assert.Equal(t, "{\"issuer\":\"http://example.com\",\"token_endpoint\":\"http://example.com/oauth/oauth20/token\",\"jwks_uri\":\"http://example.com/oauth/jwks\",\"scopes_supported\":[\"openid\"],\"response_types_supported\":[\"token\"],\"grant_types_supported\":[\"client_credentials\"],\"token_endpoint_auth_signing_alg_values_supported\":[\"RS256\"]}", w.Body.String())
 }
+
+func TestJwks(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request, _ = http.NewRequest("POST", "http://example.com/oauth/jwks", nil)
+
+	handler := RestAPIHandler{service.MockService{}}
+
+	handler.Jwks(c)
+
+	assert.Equal(t, 200, w.Code) // or what value you need it to be
+	assert.Equal(t, "{\"keys\":[{\"x5t\":\"SOMETHING\",\"use\":\"Sig\",\"kty\":\"RSA\"}]}", w.Body.String())
+}

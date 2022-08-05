@@ -25,3 +25,15 @@ func (s MockService) WellKnown() OpenIdConfig {
 		TokenEndpointsEndpointAuthSigningAlgValuesSupported: []string{"RS256"},
 	}
 }
+
+func (s MockService) Jwks() (JwksModel, error) {
+	return JwksModel{
+		Keys: []JwkModel{
+			{
+				X5T: "SOMETHING",
+				Use: "Sig",
+				Kty: "RSA",
+			},
+		},
+	}, nil
+}

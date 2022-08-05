@@ -47,3 +47,14 @@ func (ra RestAPIHandler) WellKnown(c *gin.Context) {
 
 	c.JSON(http.StatusOK, output)
 }
+
+func (ra RestAPIHandler) Jwks(c *gin.Context) {
+	output, err := ra.AuthService.Jwks()
+
+	if err != nil {
+		log.Println(err.Error())
+		c.String(http.StatusUnauthorized, "Access Denied")
+	}
+
+	c.JSON(http.StatusOK, output)
+}

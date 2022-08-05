@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -197,4 +198,22 @@ func (s ClientCredentialService) WellKnown() OpenIdConfig {
 		GrantTypesSupported:    []string{"client_credentials"},
 		TokenEndpointsEndpointAuthSigningAlgValuesSupported: []string{"RS256"},
 	}
+}
+
+func (s ClientCredentialService) Jwks() (JwksModel, error) {
+	key, rest := pem.Decode(s.publicKey)
+
+	if len(rest) != 0 {
+		return JwksModel{}, errors.New("unable to decode the public key")
+	}
+
+	return JwksModel{
+		Keys: []JwkModel{
+			{
+				X5T: base64.StdEncoding.EncodeToString(key.Bytes),
+				Use: "sig",
+				Kty: "RSA",
+			},
+		},
+	}, nil
 }

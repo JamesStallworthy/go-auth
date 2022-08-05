@@ -10,6 +10,7 @@ import (
 type APIHandler interface {
 	Token(c *gin.Context)
 	WellKnown(c *gin.Context)
+	Jwks(c *gin.Context)
 }
 
 func CreateRestAPIHandler(authService service.AuthenticateService, port string) APIHandler {
@@ -19,6 +20,8 @@ func CreateRestAPIHandler(authService service.AuthenticateService, port string) 
 	r.POST("/token", handler.Token)
 
 	r.GET("/.well-known/openid-configuration", handler.WellKnown)
+
+	r.GET("/oauth/jwks", handler.Jwks)
 
 	log.Fatal(r.Run(":" + port))
 

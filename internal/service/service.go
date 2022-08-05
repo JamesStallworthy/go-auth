@@ -11,6 +11,7 @@ type AuthenticateService interface {
 	GenerateJwtToken(id string, secret string) (string, error)
 	RefreshJwtToken(jwt string) (string, error)
 	WellKnown() OpenIdConfig
+	Jwks() (JwksModel, error)
 }
 
 type Claims struct {

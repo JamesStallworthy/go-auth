@@ -109,3 +109,12 @@ func TestWellKnown(t *testing.T) {
 	assert.NotEqual(t, output, nil)
 	assert.Equal(t, "http://example.com", output.Issuer)
 }
+
+func TestJwksMethod(t *testing.T) {
+	serv := Setup()
+
+	output, _ := serv.Jwks()
+	assert.Equal(t, "sig", output.Keys[0].Use)
+	assert.Equal(t, "RSA", output.Keys[0].Kty)
+	assert.NotEmpty(t, output.Keys[0].X5T)
+}
