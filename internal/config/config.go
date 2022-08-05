@@ -10,6 +10,7 @@ import (
 type Config struct {
 	KeyLocation          string `yaml:"KeysLocation"`
 	ClientConfigLocation string `yaml:"ClientConfigFile"`
+	Url                  string `yaml:"URL"`
 }
 
 func LoadConfig(configFile string) *Config {

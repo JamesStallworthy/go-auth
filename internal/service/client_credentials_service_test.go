@@ -1,6 +1,7 @@
 package service
 
 import (
+	"go-auth/internal/config"
 	"go-auth/internal/repository"
 	"io/ioutil"
 	"testing"
@@ -14,7 +15,7 @@ func Setup() *ClientCredentialService {
 
 	mockRepo.CreateClient("Test", "Secret")
 
-	serv, _ := CreateClientCredentialService(mockRepo, "../../test_certs/")
+	serv, _ := CreateClientCredentialService(mockRepo, config.Config{KeyLocation: "../../test_certs/", Url: "http://example.com"})
 
 	return &serv
 }
@@ -86,7 +87,7 @@ func TestRSAKeyGen(t *testing.T) {
 
 	mockRepo.CreateClient("Test", "Secret")
 
-	serv, _ := CreateClientCredentialService(mockRepo, "./")
+	serv, _ := CreateClientCredentialService(mockRepo, config.Config{KeyLocation: "./", Url: "http://example.com"})
 
 	err := serv.GenerateRSAKey()
 	assert.Equal(t, nil, err)
@@ -99,4 +100,12 @@ func TestRSAKeyGen(t *testing.T) {
 
 	assert.Contains(t, string(publicFile), "PUBLIC KEY")
 	assert.Contains(t, string(privateFile), "RSA PRIVATE KEY")
+}
+
+func TestWellKnown(t *testing.T) {
+	serv := Setup()
+
+	output := serv.WellKnown()
+	assert.NotEqual(t, output, nil)
+	assert.Equal(t, "http://example.com", output.Issuer)
 }

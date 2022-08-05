@@ -41,3 +41,9 @@ func (ra RestAPIHandler) Token(c *gin.Context) {
 		"token": token,
 	})
 }
+
+func (ra RestAPIHandler) WellKnown(c *gin.Context) {
+	output := ra.AuthService.WellKnown()
+
+	c.JSON(http.StatusOK, output)
+}

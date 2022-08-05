@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"go-auth/internal/repository"
 	"os"
 	"path/filepath"
@@ -20,9 +21,12 @@ type ClientCredentialService struct {
 	publicKey          []byte
 	publicKeyLocation  string
 	privateKeyLocation string
+	IssuerUrl          string
 }
 
-func (s *ClientCredentialService) Init(keyLocation string) error {
+func (s *ClientCredentialService) Init(keyLocation string, issuer string) error {
+	s.IssuerUrl = issuer
+
 	s.publicKeyLocation = filepath.Join(keyLocation, "/public.pem")
 	s.privateKeyLocation = filepath.Join(keyLocation, "/private.pem")
 
@@ -86,7 +90,7 @@ func (s ClientCredentialService) generateJwtTokenImpl() (string, error) {
 	claims := Claims{
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			Issuer:    "test",
+			Issuer:    s.IssuerUrl,
 		},
 	}
 
@@ -181,4 +185,16 @@ func (s ClientCredentialService) GenerateRSAKey() error {
 	}
 
 	return nil
+}
+
+func (s ClientCredentialService) WellKnown() OpenIdConfig {
+	return OpenIdConfig{
+		Issuer:                 s.IssuerUrl,
+		TokenEndpoint:          fmt.Sprintf("%[1]s/oauth/oauth20/token", s.IssuerUrl),
+		JwksUri:                fmt.Sprintf("%[1]s/oauth/jwks", s.IssuerUrl),
+		ScopesSupported:        []string{"openid"},
+		ResponseTypesSupported: []string{"token"},
+		GrantTypesSupported:    []string{"client_credentials"},
+		TokenEndpointsEndpointAuthSigningAlgValuesSupported: []string{"RS256"},
+	}
 }

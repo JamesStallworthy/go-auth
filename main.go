@@ -21,7 +21,7 @@ func main() {
 		return
 	}
 
-	serv, err = service.CreateClientCredentialService(repo, config.KeyLocation)
+	serv, err = service.CreateClientCredentialService(repo, *config)
 
 	if err != nil {
 		log.Fatal(err)

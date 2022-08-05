@@ -48,3 +48,16 @@ func TestTokenMissingClientSecret(t *testing.T) {
 	assert.Equal(t, 401, w.Code) // or what value you need it to be
 	assert.Equal(t, "Access Denied", w.Body.String())
 }
+
+func TestWellKnown(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request, _ = http.NewRequest("POST", "http://example.com//.well-known/openid-configuration", nil)
+
+	handler := RestAPIHandler{service.MockService{}}
+
+	handler.WellKnown(c)
+
+	assert.Equal(t, 200, w.Code) // or what value you need it to be
+	assert.Equal(t, "{\"issuer\":\"http://example.com\",\"token_endpoint\":\"http://example.com/oauth/oauth20/token\",\"jwks_uri\":\"http://example.com/oauth/jwks\",\"scopes_supported\":[\"openid\"],\"response_types_supported\":[\"token\"],\"grant_types_supported\":[\"client_credentials\"],\"token_endpoint_auth_signing_alg_values_supported\":[\"RS256\"]}", w.Body.String())
+}
