@@ -1,4 +1,6 @@
-package service
+package goauthdocdisco
+
+import "errors"
 
 type OpenIdConfig struct {
 	Issuer                                              string   `json:"issuer"`
@@ -8,6 +10,38 @@ type OpenIdConfig struct {
 	ResponseTypesSupported                              []string `json:"response_types_supported"`
 	GrantTypesSupported                                 []string `json:"grant_types_supported"`
 	TokenEndpointsEndpointAuthSigningAlgValuesSupported []string `json:"token_endpoint_auth_signing_alg_values_supported"`
+}
+
+func (o OpenIdConfig) Validate() (bool, error) {
+	if o.Issuer == "" {
+		return false, errors.New("invalid Issuer")
+	}
+
+	if o.TokenEndpoint == "" {
+		return false, errors.New("invalid Token Endpoint")
+	}
+
+	if o.JwksUri == "" {
+		return false, errors.New("invalid Jwks endpoint")
+	}
+
+	if len(o.ScopesSupported) == 0 {
+		return false, errors.New("no supported scopes found")
+	}
+
+	if len(o.ResponseTypesSupported) == 0 {
+		return false, errors.New("no supported response types")
+	}
+
+	if len(o.GrantTypesSupported) == 0 {
+		return false, errors.New("no supported grant types")
+	}
+
+	if len(o.TokenEndpointsEndpointAuthSigningAlgValuesSupported) == 0 {
+		return false, errors.New("no supported token alg values supported")
+	}
+
+	return true, nil
 }
 
 // `{

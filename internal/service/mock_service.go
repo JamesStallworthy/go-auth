@@ -1,6 +1,9 @@
 package service
 
-import "fmt"
+import (
+	"fmt"
+	goauthdocdisco "go-auth/pkg/go-auth-doc-disco"
+)
 
 type MockService struct {
 }
@@ -13,9 +16,9 @@ func (s MockService) RefreshJwtToken(jwt string) (string, error) {
 	return "ayJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0IiwiZXhwIjoxNjU4MDY1ODY0fQ._Q9NIu1anMwPzZ3w0gvQbRQVlHRyZUnyd60LzhfNyL0", nil
 }
 
-func (s MockService) WellKnown() OpenIdConfig {
+func (s MockService) WellKnown() goauthdocdisco.OpenIdConfig {
 	issuer := "http://example.com"
-	return OpenIdConfig{
+	return goauthdocdisco.OpenIdConfig{
 		Issuer:                 issuer,
 		TokenEndpoint:          fmt.Sprintf("%[1]s/oauth/oauth20/token", issuer),
 		JwksUri:                fmt.Sprintf("%[1]s/oauth/jwks", issuer),

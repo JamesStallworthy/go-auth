@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"go-auth/internal/repository"
+	goauthdocdisco "go-auth/pkg/go-auth-doc-disco"
 	"os"
 	"path/filepath"
 	"time"
@@ -188,8 +189,8 @@ func (s ClientCredentialService) GenerateRSAKey() error {
 	return nil
 }
 
-func (s ClientCredentialService) WellKnown() OpenIdConfig {
-	return OpenIdConfig{
+func (s ClientCredentialService) WellKnown() goauthdocdisco.OpenIdConfig {
+	return goauthdocdisco.OpenIdConfig{
 		Issuer:                 s.IssuerUrl,
 		TokenEndpoint:          fmt.Sprintf("%[1]s/oauth/oauth20/token", s.IssuerUrl),
 		JwksUri:                fmt.Sprintf("%[1]s/oauth/jwks", s.IssuerUrl),
