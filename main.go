@@ -8,7 +8,6 @@ import (
 	"log"
 )
 
-var port string = "5001"
 var serv service.AuthenticateService
 
 func main() {
@@ -28,5 +27,5 @@ func main() {
 		return
 	}
 
-	_ = api.CreateRestAPIHandler(serv, port)
+	_ = api.CreateRestAPIHandler(serv, config.Port)
 }

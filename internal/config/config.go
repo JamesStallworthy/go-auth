@@ -11,6 +11,7 @@ type Config struct {
 	KeyLocation          string `yaml:"KeysLocation"`
 	ClientConfigLocation string `yaml:"ClientConfigFile"`
 	Url                  string `yaml:"URL"`
+	Port                 int    `yaml:"Port"`
 }
 
 func LoadConfig(configFile string) *Config {

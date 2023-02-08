@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"go-auth/internal/service"
 	"log"
 
@@ -13,7 +14,7 @@ type APIHandler interface {
 	Jwks(c *gin.Context)
 }
 
-func CreateRestAPIHandler(authService service.AuthenticateService, port string) APIHandler {
+func CreateRestAPIHandler(authService service.AuthenticateService, port int) APIHandler {
 	handler := RestAPIHandler{AuthService: authService}
 
 	r := gin.Default()
@@ -23,7 +24,7 @@ func CreateRestAPIHandler(authService service.AuthenticateService, port string) 
 
 	r.GET("/oauth/jwks", handler.Jwks)
 
-	log.Fatal(r.Run(":" + port))
+	log.Fatal(r.Run(fmt.Sprintf(": %v", port)))
 
 	return handler
 }
